@@ -20,8 +20,9 @@ function startReminders(sendMessage) {
       }
     );
 
-  }, 7200000); // every 2 hours
+  }, 60000); // every 2 hours
 
 }
+
 
 module.exports = startReminders;
