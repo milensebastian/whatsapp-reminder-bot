@@ -1,6 +1,6 @@
 const express = require("express");
 const axios = require("axios");
-const db = require("./database");
+const database = require("./database");
 const startReminders = require("./reminders");
 
 const app = express();
@@ -109,10 +109,7 @@ app.post("/webhook", async (req, res) => {
 
     else if (text === "tasks") {
 
-      db.all(
-        "SELECT * FROM tasks WHERE phone=? AND status='pending'",
-        [from],
-        async (err, rows) => {
+  database.getAllPending(callback);
 
           let msg = "📚 Your Tasks\n\n";
 
@@ -168,5 +165,6 @@ app.listen(PORT, "0.0.0.0", () => {
 
 
 startReminders(sendMessage);
+
 
 
