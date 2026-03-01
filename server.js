@@ -5,7 +5,9 @@ const startReminders = require("./reminders");
 
 const app = express();
 app.use(express.json());
-
+app.get("/", (req, res) => {
+  res.send("Bot is running");
+});
 /* ================= CONFIG ================= */
 
 const VERIFY_TOKEN = "college_bot";
@@ -165,3 +167,4 @@ app.listen(PORT, "0.0.0.0", () => {
 
 
 startReminders(sendMessage);
+
