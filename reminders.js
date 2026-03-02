@@ -1,9 +1,4 @@
-const db = require("./database");
-
-/*
-Start the reminder engine
-sendMessage is passed from server.js
-*/
+const database = require("./database");
 
 function startReminders(sendMessage) {
 
@@ -13,43 +8,32 @@ function startReminders(sendMessage) {
 
     console.log("Checking pending tasks...");
 
-    db.all(
-      "SELECT * FROM tasks WHERE status='pending'",
-      [],
-      async (err, rows) => {
+    database.getPendingTasks(async (err, rows) => {
 
-        if (err) {
-          console.error("Database error:", err);
-          return;
-        }
+      if (err) {
+        console.log(err);
+        return;
+      }
 
-        if (rows.length === 0) {
-          console.log("No pending tasks");
-          return;
-        }
+      if (!rows.length) {
+        console.log("No pending tasks");
+        return;
+      }
 
-        for (const task of rows) {
+      for (const task of rows) {
 
-          try {
+        await sendMessage(
+          task.phone,
+          `⏰ Reminder\n${task.title}`
+        );
 
-            console.log("Sending reminder to", task.phone);
-
-            await sendMessage(
-              task.phone,
-              `⏰ Reminder\n${task.title}`
-            );
-
-          } catch (error) {
-            console.error("Reminder failed:", error.message);
-          }
-
-        }
+        console.log("Reminder sent to", task.phone);
 
       }
-    );
 
-  }, 60000); // every 2 hours
+    });
 
+  }, 60000); // 1 minute for testing
 
 }
 
