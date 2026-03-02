@@ -11,29 +11,35 @@ function startReminders(sendMessage) {
     database.getPendingTasks(async (err, rows) => {
 
       if (err) {
-        console.log(err);
+        console.error("Database error:", err);
         return;
       }
 
-      if (!rows.length) {
+      if (!rows || rows.length === 0) {
         console.log("No pending tasks");
         return;
       }
 
       for (const task of rows) {
 
-        await sendMessage(
-          task.phone,
-          `⏰ Reminder\n${task.title}`
-        );
+        try {
 
-        console.log("Reminder sent to", task.phone);
+          await sendMessage(
+            task.phone,
+            `⏰ Reminder\n${task.title}`
+          );
+
+          console.log("Reminder sent to", task.phone);
+
+        } catch (error) {
+          console.log("Send error:", error.message);
+        }
 
       }
 
     });
 
-  }, 60000); // 1 minute for testing
+  }, 60000); // 1 minute test
 
 }
 
