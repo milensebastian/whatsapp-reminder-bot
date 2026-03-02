@@ -7,8 +7,8 @@ const startReminders = require("./reminders");
 const app = express();
 app.use(express.json());
 
-const ACCESS_TOKEN = process.env.EAAsBFZCTSPdkBQ85qrAMgYLziuIVCw0CE4yvtWF9rZCZAILfCh32exqs3jZA7BZAd4cXYsNnrcUlyZBJtRU10gsDiBwqf5lWMZBustHrGw2dRBWuOTBKc73wWAN80FuryGbMqgagQqus4RI3GYlUcMrkbcXO1Wj5SQKNdhJ50j6NBSNt3KPDozxvZBxXn0YkZAiMgzPZBZAP7ZBZAVW6GyZBZAySJXpmJPvlrTtHTwe2gc2FUyAE56h9YY39PIxIoxdW06buBZC5Qwh7yvvSZB7sBWT0ke2t4;
-const PHONE_NUMBER_ID = process.env.1061868540335382;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = "college_bot";
 
 /* health route */
@@ -85,3 +85,4 @@ app.listen(PORT, "0.0.0.0", () => {
 /* start reminders */
 
 startReminders(sendMessage);
+
