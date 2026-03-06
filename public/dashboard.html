@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>College Reminder Dashboard</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f5f6fa;
+padding:40px;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+max-width:600px;
+margin:auto;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1{
+margin-bottom:20px;
+}
+
+input, select, textarea{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:20px;
+border-radius:5px;
+border:1px solid #ddd;
+}
+
+button{
+background:#4CAF50;
+color:white;
+padding:12px;
+border:none;
+width:100%;
+border-radius:5px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#43a047;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Reminder Manager</h1>
+
+<form action="/add-reminder" method="POST">
+
+<label>Reminder Message</label>
+
+<textarea name="message" required></textarea>
+
+<label>Schedule Type</label>
+
+<select name="schedule_type">
+
+<option value="daily">Every Day</option>
+
+<option value="weekly">Every Week</option>
+
+<option value="once">One Time</option>
+
+</select>
+
+<label>Time</label>
+
+<input type="time" name="schedule_time" required>
+
+<button type="submit">Create Reminder</button>
+
+</form>
+
+</div>
+
+</body>
+
+</html>
