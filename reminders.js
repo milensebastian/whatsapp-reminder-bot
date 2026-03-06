@@ -39,8 +39,9 @@ function startReminders(sendMessage) {
 
     });
 
-  }, 60000); // 1 minute test
+  }, 700000); // 1 minute test
 
 }
 
 module.exports = startReminders;
+
