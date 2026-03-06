@@ -1,58 +1,36 @@
 const sqlite3 = require("sqlite3").verbose();
 
-const db = new sqlite3.Database("./tasks.db", (err) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log("SQLite database connected");
-  }
+const db = new sqlite3.Database("tasks.db", (err) => {
+  if (err) console.error(err.message);
+  else console.log("SQLite database connected");
 });
-
-/* create tables */
 
 db.serialize(() => {
 
   db.run(`
-    CREATE TABLE IF NOT EXISTS tasks (
+    CREATE TABLE IF NOT EXISTS reminders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phone TEXT,
-      title TEXT,
-      status TEXT
+      message TEXT,
+      schedule_type TEXT,
+      schedule_time TEXT
     )
   `);
 
 });
 
-function addTask(phone, title) {
-
+function addReminder(message, type, time) {
   db.run(
-    "INSERT INTO tasks (phone,title,status) VALUES (?,?,?)",
-    [phone, title, "pending"]
+    "INSERT INTO reminders (message, schedule_type, schedule_time) VALUES (?, ?, ?)",
+    [message, type, time]
   );
-
 }
 
-function getPendingTasks(callback) {
-
-  db.all(
-    "SELECT * FROM tasks WHERE status='pending'",
-    [],
-    callback
-  );
-
-}
-
-function completeTask(id) {
-
-  db.run(
-    "UPDATE tasks SET status='done' WHERE id=?",
-    [id]
-  );
-
+function getReminders(callback) {
+  db.all("SELECT * FROM reminders", [], callback);
 }
 
 module.exports = {
-  addTask,
-  getPendingTasks,
-  completeTask
+  db,
+  addReminder,
+  getReminders
 };
