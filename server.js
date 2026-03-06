@@ -20,7 +20,20 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/login.html"));
+});
 
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === "admin" && password === "1234") {
+    req.session.loggedIn = true;
+    res.redirect("/dashboard");
+  } else {
+    res.send("Invalid login");
+  }
+});
 /* ================= DASHBOARD ================= */
 
 app.get("/dashboard", (req, res) => {
@@ -233,5 +246,6 @@ res.redirect("/login");
 /* ================= START REMINDERS ================= */
 
 startReminders(sendMessage);
+
 
 
