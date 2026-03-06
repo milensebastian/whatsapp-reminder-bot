@@ -2,6 +2,7 @@ const db = require("./database");
 
 const students = [
   "919645997520"
+  "91889332426"
 ];
 
 students.forEach(phone => {
@@ -12,5 +13,6 @@ students.forEach(phone => {
   );
 
 });
+
 
 console.log("Tasks added");
