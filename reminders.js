@@ -1,4 +1,4 @@
-const database = require("./database");
+const { getReminders } = require("./database");
 
 function startReminders(sendMessage) {
 
@@ -6,42 +6,34 @@ function startReminders(sendMessage) {
 
   setInterval(() => {
 
-    console.log("Checking pending tasks...");
+    const now = new Date();
 
-    database.getPendingTasks(async (err, rows) => {
+    const currentTime =
+      now.getHours().toString().padStart(2,"0") + ":" +
+      now.getMinutes().toString().padStart(2,"0");
 
-      if (err) {
-        console.error("Database error:", err);
-        return;
-      }
+    getReminders(async (err, rows) => {
 
-      if (!rows || rows.length === 0) {
-        console.log("No pending tasks");
-        return;
-      }
+      if (err) return;
 
-      for (const task of rows) {
+      rows.forEach(async r => {
 
-        try {
+        if (r.schedule_time === currentTime) {
 
           await sendMessage(
-            task.phone,
-            `⏰ Reminder\n${task.title}`
+            "919645997520",   // student number
+            "⏰ Reminder\n" + r.message
           );
 
-          console.log("Reminder sent to", task.phone);
+          console.log("Reminder sent:", r.message);
 
-        } catch (error) {
-          console.log("Send error:", error.message);
         }
 
-      }
+      });
 
     });
 
-  }, 700000); // 1 minute test
-
+  }, 60000); // check every minute
 }
 
 module.exports = startReminders;
-
