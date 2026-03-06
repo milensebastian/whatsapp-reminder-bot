@@ -221,7 +221,13 @@ app.listen(PORT, () => {
   console.log("Server running on port", PORT);
 
 });
+app.get("/logout", (req,res)=>{
+req.session.destroy(()=>{
+res.redirect("/login");
+});
+});
 
 /* ================= START REMINDERS ================= */
 
 startReminders(sendMessage);
+
