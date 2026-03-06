@@ -1,17 +1,20 @@
 const express = require("express");
+const session = require("express-session");
 const axios = require("axios");
 const path = require("path");
 
+const { addReminder, getReminders } = require("./database");
 const db = require("./database").db;
 const startReminders = require("./reminders");
 
-const { addReminder, getReminders } = require("./database");
-
 const app = express();
+
+/* ================= MIDDLEWARE ================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
 app.use(session({
   secret: "college_secret_key",
   resave: false,
@@ -230,4 +233,5 @@ res.redirect("/login");
 /* ================= START REMINDERS ================= */
 
 startReminders(sendMessage);
+
 
