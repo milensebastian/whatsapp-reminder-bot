@@ -295,10 +295,11 @@ to see pending tasks.`
 
 /* ================= SERVER START ================= */
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT,()=>{
-  console.log("Notify server running on port",PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Notify server running on port", PORT);
   startReminderEngine(sendMessage);
 });
+
 
