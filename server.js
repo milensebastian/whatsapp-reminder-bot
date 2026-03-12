@@ -8,7 +8,25 @@ const path = require("path");
 const startReminderEngine = require("./reminderEngine");
 
 const db = require("./database");
+/* AUTO CREATE ADMIN */
 
+async function createDefaultAdmin(){
+
+const admin = await db.getAdmin("admin");
+
+if(!admin){
+
+const password = await bcrypt.hash("admin123",10);
+
+db.createAdmin("admin",password,"admin");
+
+console.log("Default admin created");
+
+}
+
+}
+
+createDefaultAdmin();
 const app = express();
 
 /* ================= BASIC CONFIG ================= */
@@ -300,6 +318,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("Notify server running on port", PORT);
   startReminderEngine(sendMessage);
 });
+
 
 
 
