@@ -1,224 +1,288 @@
 const express = require("express");
 const session = require("express-session");
+const bcrypt = require("bcrypt");
+const multer = require("multer");
+const XLSX = require("xlsx");
 const axios = require("axios");
 const path = require("path");
 
-const { addReminder, getReminders } = require("./database");
-const db = require("./database").db;
-const startReminders = require("./reminders");
+const db = require("./database");
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
+/* ================= BASIC CONFIG ================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static("public"));
 
 app.use(session({
-  secret: "college_secret_key",
+  secret: "notify_secret",
   resave: false,
   saveUninitialized: true
 }));
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/login.html"));
-});
 
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+/* ================= FILE UPLOAD ================= */
 
-  if (username === "admin" && password === "1234") {
-    req.session.loggedIn = true;
-    res.redirect("/dashboard");
-  } else {
-    res.send("Invalid login");
+const upload = multer({ dest: "uploads/" });
+
+/* ================= AUTH MIDDLEWARE ================= */
+
+function auth(req,res,next){
+  if(!req.session.user){
+    return res.redirect("/login");
   }
-});
-/* ================= DASHBOARD ================= */
+  next();
+}
 
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/dashboard.html"));
-});
+/* ================= LOGIN ================= */
 
-app.post("/add-reminder", (req, res) => {
-
-  const { message, schedule_type, schedule_time } = req.body;
-
-  addReminder(message, schedule_type, schedule_time);
-
-  res.send("Reminder saved!");
+app.get("/login",(req,res)=>{
+  res.sendFile(path.join(__dirname,"public/login.html"));
 });
 
-app.get("/reminders", (req, res) => {
-  getReminders((err, rows) => {
-    res.json(rows);
+app.post("/login",async (req,res)=>{
+
+  const { username,password } = req.body;
+
+  const admin = db.getAdmin(username);
+
+  if(!admin){
+    return res.send("Invalid login");
+  }
+
+  const match = await bcrypt.compare(password,admin.password);
+
+  if(!match){
+    return res.send("Invalid password");
+  }
+
+  req.session.user = admin;
+
+  res.redirect("/dashboard");
+
+});
+
+/* ================= LOGOUT ================= */
+
+app.get("/logout",(req,res)=>{
+  req.session.destroy(()=>{
+    res.redirect("/login");
   });
 });
 
-/* ================= CONFIG ================= */
+/* ================= DASHBOARD ================= */
 
-const VERIFY_TOKEN = "college_bot";
+app.get("/dashboard",auth,(req,res)=>{
+  res.sendFile(path.join(__dirname,"public/dashboard.html"));
+});
 
-const ACCESS_TOKEN = "EAAsBFZCTSPdkBQ2MXFjbZAYgIPdyArcp6PMvuLEwNplhhvWJmZBOOxjRiL93OB4OhZCZBVMN8qPzU6ImhDRkKlyPyMjERlCjal2gq26P9aZBOg0F2GXnr3DRMAc7OzQsOuKAjhtvAsGxbc4q5qeY9kGWbIL4zqrAKdO8ywEnyryJXrqGmCjZClKqnreefAQhAZDZD";
+/* ================= STUDENT EXCEL UPLOAD ================= */
 
-const PHONE_NUMBER_ID = "1061868540335382";
+app.post("/upload-students",auth,upload.single("file"),(req,res)=>{
 
-/* ================= SEND MESSAGE ================= */
+  const workbook = XLSX.readFile(req.file.path);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-async function sendMessage(to, text) {
+  const data = XLSX.utils.sheet_to_json(sheet);
 
-  try {
+  data.forEach(row => {
+
+    const name = row.Name || row.name;
+    let phone = row.Phone || row.phone;
+
+    if(!phone) return;
+
+    phone = phone.toString().replace(/\D/g,"");
+
+    if(phone.length === 10){
+      phone = "91" + phone;
+    }
+
+    db.addStudent(name,phone,1);
+
+  });
+
+  res.send("Students uploaded successfully");
+
+});
+
+/* ================= CREATE TASK ================= */
+
+app.post("/create-task",auth,(req,res)=>{
+
+  const { title,description,deadline,priority } = req.body;
+
+  const teacher = req.session.user.id;
+
+  const result = db.createTask(
+    title,
+    description,
+    deadline,
+    priority,
+    1,
+    teacher
+  );
+
+  res.json({ success:true, taskId:result.lastInsertRowid });
+
+});
+
+/* ================= TASK LIST ================= */
+
+app.get("/tasks",auth,(req,res)=>{
+
+  const tasks = db.db.prepare(
+    "SELECT * FROM tasks ORDER BY deadline ASC"
+  ).all();
+
+  res.json(tasks);
+
+});
+
+/* ================= WHATSAPP CONFIG ================= */
+
+const VERIFY_TOKEN = "notify_verify";
+
+const ACCESS_TOKEN = "YOUR_WHATSAPP_TOKEN";
+
+const PHONE_NUMBER_ID = "YOUR_PHONE_ID";
+
+/* ================= SEND WHATSAPP MESSAGE ================= */
+
+async function sendMessage(to,text){
+
+  try{
 
     await axios.post(
-      `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
+      `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
       {
-        messaging_product: "whatsapp",
-        to: to,
-        type: "text",
-        text: { body: text }
+        messaging_product:"whatsapp",
+        to:to,
+        type:"text",
+        text:{ body:text }
       },
       {
-        headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
-          "Content-Type": "application/json"
+        headers:{
+          Authorization:`Bearer ${ACCESS_TOKEN}`,
+          "Content-Type":"application/json"
         }
       }
     );
 
-    console.log("Message sent to", to);
+    console.log("Message sent to",to);
 
-  } catch (err) {
+  }catch(err){
 
-    console.log("Send error:", err.response?.data || err.message);
+    console.log("WhatsApp error",err.response?.data);
 
   }
+
 }
 
-/* ================= VERIFY WEBHOOK ================= */
+/* ================= WEBHOOK VERIFY ================= */
 
-app.get("/webhook", (req, res) => {
+app.get("/webhook",(req,res)=>{
 
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  if (mode && token === VERIFY_TOKEN) {
-
-    console.log("Webhook verified");
-
+  if(mode && token === VERIFY_TOKEN){
     res.status(200).send(challenge);
-
-  } else {
-
+  }
+  else{
     res.sendStatus(403);
-
   }
 
 });
 
-/* ================= RECEIVE MESSAGES ================= */
+/* ================= RECEIVE WHATSAPP MESSAGE ================= */
 
-app.post("/webhook", async (req, res) => {
+app.post("/webhook",async (req,res)=>{
 
   const message = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
-  if (message) {
+  if(message){
 
     const from = message.from;
     const text = message.text?.body?.toLowerCase() || "";
 
-    console.log("User:", from);
-    console.log("Message:", text);
+    console.log("User:",from);
+    console.log("Message:",text);
 
-    /* create default tasks if user new */
+    /* find student */
 
-    db.get("SELECT phone FROM users WHERE phone=?", [from], (err, row) => {
+    const student = db.db.prepare(
+      "SELECT * FROM students WHERE phone=?"
+    ).get(from);
 
-      if (!row) {
+    if(!student){
 
-        db.run("INSERT INTO users (phone) VALUES (?)", [from]);
+      await sendMessage(
+        from,
+        "⚠ You are not registered in Notify system."
+      );
 
-        db.run(
-          "INSERT INTO tasks (phone,title,status) VALUES (?,?,?)",
-          [from, "DB Assignment", "pending"]
-        );
+      return res.sendStatus(200);
 
-        db.run(
-          "INSERT INTO tasks (phone,title,status) VALUES (?,?,?)",
-          [from, "Cybersecurity Lab", "pending"]
-        );
-
-      }
-
-    });
+    }
 
     /* COMMANDS */
 
-    if (text === "hi") {
+    if(text === "hi"){
 
       await sendMessage(
         from,
-        "Hello 👋 I'm your assignment reminder bot.\nType HELP for commands."
+`🔔 Notify – Campus Alert
+
+Hello ${student.name}
+
+Type:
+MY TASKS
+to see pending tasks.`
       );
 
     }
 
-    else if (text === "help") {
+    else if(text === "my tasks"){
 
-      await sendMessage(
-        from,
-        "Commands:\nTASKS - view tasks\nDONE <id> - mark complete"
-      );
+      const tasks = db.getTasksForStudent(student.id);
 
-    }
+      if(tasks.length === 0){
 
-    else if (text === "tasks") {
+        await sendMessage(from,"🎉 No pending tasks");
 
-      db.all(
-        "SELECT * FROM tasks WHERE phone=? AND status='pending'",
-        [from],
-        async (err, rows) => {
+      }else{
 
-          let msg = "📚 Your Tasks\n\n";
+        let msg = "📚 Pending Tasks\n\n";
 
-          rows.forEach(t => {
-            msg += `${t.id}. ${t.title}\n`;
-          });
+        tasks.forEach(t=>{
+          msg += `${t.id}. ${t.title}\nDeadline: ${t.deadline}\n\n`;
+        });
 
-          if (rows.length === 0) {
-            msg = "All tasks completed 🎉";
-          }
+        msg += "Reply DONE <taskid> to mark completed.";
 
-          await sendMessage(from, msg);
+        await sendMessage(from,msg);
 
-        }
-      );
+      }
 
     }
 
-    else if (text.startsWith("done")) {
+    else if(text.startsWith("done")){
 
       const id = parseInt(text.split(" ")[1]);
 
-      db.run(
-        "UPDATE tasks SET status='done' WHERE id=? AND phone=?",
-        [id, from],
-        async function () {
+      db.markTaskDone(id,student.id);
 
-          if (this.changes > 0) {
-            await sendMessage(from, "✅ Task marked completed.");
-          } else {
-            await sendMessage(from, "Task not found.");
-          }
-
-        }
-      );
+      await sendMessage(from,"✅ Task marked completed.");
 
     }
 
-    else {
+    else{
 
-      await sendMessage(from, "Unknown command. Type HELP.");
+      await sendMessage(from,"Unknown command.\nType HI");
 
     }
 
@@ -228,24 +292,10 @@ app.post("/webhook", async (req, res) => {
 
 });
 
-/* ================= START SERVER ================= */
+/* ================= SERVER START ================= */
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-app.listen(PORT, () => {
-
-  console.log("Server running on port", PORT);
-
+app.listen(PORT,()=>{
+  console.log("Notify server running on port",PORT);
 });
-app.get("/logout", (req,res)=>{
-req.session.destroy(()=>{
-res.redirect("/login");
-});
-});
-
-/* ================= START REMINDERS ================= */
-
-startReminders(sendMessage);
-
-
-
