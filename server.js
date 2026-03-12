@@ -5,6 +5,7 @@ const multer = require("multer");
 const XLSX = require("xlsx");
 const axios = require("axios");
 const path = require("path");
+const startReminderEngine = require("./reminderEngine");
 
 const db = require("./database");
 
@@ -298,4 +299,6 @@ const PORT = 3000;
 
 app.listen(PORT,()=>{
   console.log("Notify server running on port",PORT);
+  startReminderEngine(sendMessage);
 });
+
