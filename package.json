@@ -1,8 +1,11 @@
 {
-  "name": "whatsapp-reminder-bot",
+  "name": "notify-campus-alert",
   "version": "1.0.0",
-  "description": "Notify Campus Reminder System",
+  "description": "Notify – WhatsApp based campus reminder and task management system",
   "main": "server.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "node server.js"
   },
