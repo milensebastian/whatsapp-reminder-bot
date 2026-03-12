@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notify Announcements</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <h1 class="brand">Notify</h1>
+      <p class="tagline">Broadcast urgent updates</p>
+      <a class="nav-link" data-nav href="/dashboard/index.html">Dashboard</a>
+      <a class="nav-link" data-nav href="/dashboard/tasks.html">Tasks</a>
+      <a class="nav-link" data-nav href="/dashboard/announcements.html">Announcements</a>
+      <a class="nav-link" data-nav href="/dashboard/reminders.html">Reminders</a>
+      <a class="nav-link" data-nav href="/dashboard/users.html">Users</a>
+      <a class="nav-link" data-nav href="/dashboard/classes.html">Classes</a>
+      <a class="nav-link" data-nav href="/dashboard/polls.html">Polls</a>
+      <a class="nav-link" data-nav href="/dashboard/file-distribution.html">Files</a>
+      <a class="nav-link" data-nav href="/dashboard/analytics.html">Analytics</a>
+    </aside>
+    <main class="main">
+      <section class="hero">
+        <h1>Announcement center</h1>
+        <p>Broadcast announcements immediately, schedule them for later, or trigger an emergency alert to all users.</p>
+      </section>
+      <section class="content-grid">
+        <div class="card">
+          <h2 class="section-title">New Announcement</h2>
+          <form id="announcementForm" class="form-grid">
+            <label>Title<input id="announcementTitle" required></label>
+            <label>Message<textarea id="announcementMessage" required></textarea></label>
+            <label>Priority
+              <select id="announcementPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </label>
+            <label>Target Scope
+              <select id="announcementTargetScope">
+                <option value="manual">Manual Phones</option>
+                <option value="all">All Students</option>
+                <option value="department">Department</option>
+                <option value="year">Year</option>
+                <option value="class">Class</option>
+              </select>
+            </label>
+            <label>Department
+              <select id="announcementDepartment"><option value="">Select department</option></select>
+            </label>
+            <label>Year
+              <select id="announcementYear"><option value="">Select year</option></select>
+            </label>
+            <label>Class
+              <select id="announcementClass"><option value="">Select class</option></select>
+            </label>
+            <label>Schedule Date<input id="scheduleDate" type="date"></label>
+            <label>Schedule Time<input id="scheduleTime" type="time"></label>
+            <label>Target Phones (manual scope only)<textarea id="targetUsers" placeholder="919876543210, 919812345678"></textarea></label>
+            <button class="secondary" type="submit">Send or Schedule Announcement</button>
+          </form>
+          <div id="announcementStatus"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Emergency Alert Mode</h2>
+          <form id="emergencyAlertForm" class="form-grid">
+            <label>Alert Title<input id="emergencyTitle" required></label>
+            <label>Alert Message<textarea id="emergencyMessage" required></textarea></label>
+            <button type="submit">Send Emergency Alert</button>
+          </form>
+          <div id="emergencyStatus"></div>
+        </div>
+      </section>
+      <section class="content-grid" style="margin-top: 24px;">
+        <div class="card">
+          <h2 class="section-title">Announcement Feed</h2>
+          <div id="announcementList" class="list"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Emergency Alert Log</h2>
+          <div id="emergencyAlertList" class="list"></div>
+        </div>
+      </section>
+      <section class="card" style="margin-top: 24px;">
+        <h2 class="section-title">Scheduled Broadcasts</h2>
+        <div id="scheduledAnnouncementList" class="list"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/announcements.js"></script>
+</body>
+</html>

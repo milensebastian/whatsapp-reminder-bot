@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notify Analytics</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <h1 class="brand">Notify</h1>
+      <p class="tagline">Platform reporting and trends</p>
+      <a class="nav-link" data-nav href="/dashboard/index.html">Dashboard</a>
+      <a class="nav-link" data-nav href="/dashboard/tasks.html">Tasks</a>
+      <a class="nav-link" data-nav href="/dashboard/announcements.html">Announcements</a>
+      <a class="nav-link" data-nav href="/dashboard/reminders.html">Reminders</a>
+      <a class="nav-link" data-nav href="/dashboard/users.html">Users</a>
+      <a class="nav-link" data-nav href="/dashboard/classes.html">Classes</a>
+      <a class="nav-link" data-nav href="/dashboard/polls.html">Polls</a>
+      <a class="nav-link" data-nav href="/dashboard/file-distribution.html">Files</a>
+      <a class="nav-link" data-nav href="/dashboard/analytics.html">Analytics</a>
+    </aside>
+    <main class="main">
+      <section class="hero">
+        <h1>Analytics overview</h1>
+        <p>Review high-level operational metrics, recent activity, and current poll results.</p>
+      </section>
+      <section class="content-grid">
+        <div class="table-card">
+          <h2 class="section-title">Summary Metrics</h2>
+          <table>
+            <tbody id="analyticsTable"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Recent Analytics Activity</h2>
+          <div id="analyticsActivity" class="log-list"></div>
+        </div>
+      </section>
+      <section class="card" style="margin-top: 24px;">
+        <h2 class="section-title">Latest Poll Results</h2>
+        <div id="pollResults" class="list"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/analytics.js"></script>
+</body>
+</html>
+
+
+
