@@ -161,11 +161,11 @@ app.get("/tasks",auth,(req,res)=>{
 
 /* ================= WHATSAPP CONFIG ================= */
 
-const VERIFY_TOKEN = "notify_verify";
+const VERIFY_TOKEN = "college_bot";
 
-const ACCESS_TOKEN = "YOUR_WHATSAPP_TOKEN";
+const ACCESS_TOKEN = "EAAsBFZCTSPdkBQ2MXFjbZAYgIPdyArcp6PMvuLEwNplhhvWJmZBOOxjRiL93OB4OhZCZBVMN8qPzU6ImhDRkKlyPyMjERlCjal2gq26P9aZBOg0F2GXnr3DRMAc7OzQsOuKAjhtvAsGxbc4q5qeY9kGWbIL4zqrAKdO8ywEnyryJXrqGmCjZClKqnreefAQhAZDZD";
 
-const PHONE_NUMBER_ID = "YOUR_PHONE_ID";
+const PHONE_NUMBER_ID = "1061868540335382";
 
 /* ================= SEND WHATSAPP MESSAGE ================= */
 
@@ -318,6 +318,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("Notify server running on port", PORT);
   startReminderEngine(sendMessage);
 });
+
 
 
 
