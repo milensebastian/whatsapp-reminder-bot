@@ -8,6 +8,8 @@ const db = new sqlite3.Database("./tasks.db", (err) => {
   }
 });
 
+/* CREATE TABLES */
+
 db.serialize(() => {
 
   db.run(`
@@ -19,23 +21,36 @@ db.serialize(() => {
     )
   `);
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS students (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      phone TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT,
-      deadline TEXT,
-      priority TEXT
-    )
-  `);
-
 });
 
-module.exports = db;
+/* GET ADMIN */
+
+function getAdmin(username){
+  return new Promise((resolve,reject)=>{
+
+    db.get(
+      "SELECT * FROM admins WHERE username=?",
+      [username],
+      (err,row)=>{
+        if(err) reject(err);
+        else resolve(row);
+      }
+    );
+
+  });
+}
+
+/* CREATE ADMIN */
+
+function createAdmin(username,password,role){
+  db.run(
+    "INSERT INTO admins (username,password,role) VALUES (?,?,?)",
+    [username,password,role]
+  );
+}
+
+module.exports = {
+  db,
+  getAdmin,
+  createAdmin
+};
