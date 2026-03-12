@@ -46,8 +46,7 @@ app.get("/login",(req,res)=>{
 app.post("/login",async (req,res)=>{
 
   const { username,password } = req.body;
-
-  const admin = db.getAdmin(username);
+const admin = await db.getAdmin(username);
 
   if(!admin){
     return res.send("Invalid login");
@@ -301,5 +300,6 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("Notify server running on port", PORT);
   startReminderEngine(sendMessage);
 });
+
 
 
