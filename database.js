@@ -8,9 +8,9 @@ const db = new sqlite3.Database("./tasks.db", (err) => {
   }
 });
 
-/* CREATE TABLES */
-
 db.serialize(() => {
+
+  /* ADMINS */
 
   db.run(`
     CREATE TABLE IF NOT EXISTS admins (
@@ -18,6 +18,28 @@ db.serialize(() => {
       username TEXT UNIQUE,
       password TEXT,
       role TEXT
+    )
+  `);
+
+  /* STUDENTS */
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS students (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      phone TEXT
+    )
+  `);
+
+  /* TASKS */
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT,
+      description TEXT,
+      deadline TEXT,
+      priority TEXT
     )
   `);
 
@@ -44,7 +66,7 @@ function getAdmin(username){
 
 function createAdmin(username,password,role){
   db.run(
-    "INSERT INTO admins (username,password,role) VALUES (?,?,?)",
+    "INSERT OR IGNORE INTO admins (username,password,role) VALUES (?,?,?)",
     [username,password,role]
   );
 }
