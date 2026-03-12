@@ -1,7 +1,7 @@
 {
   "name": "notify-campus-alert",
   "version": "1.0.0",
-  "description": "Notify – WhatsApp based campus reminder and task management system",
+  "description": "Notify WhatsApp reminder system",
   "main": "server.js",
   "engines": {
     "node": "20.x"
@@ -12,10 +12,10 @@
   "dependencies": {
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
-    "better-sqlite3": "^9.6.0",
     "express": "^4.19.2",
     "express-session": "^1.17.3",
     "multer": "^1.4.5-lts.1",
+    "sqlite3": "^5.1.7",
     "xlsx": "^0.18.5"
   }
 }
